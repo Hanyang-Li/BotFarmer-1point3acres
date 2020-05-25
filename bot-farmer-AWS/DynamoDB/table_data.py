@@ -112,7 +112,7 @@ def download():
         cheat_sheet[item['Question']] = item['Answers']
     # Over write cheat_sheet.json file
     with open('cheat_sheet.json', 'w') as file:
-        json.dump(cheat_sheet, file, ensure_ascii=False)
+        json.dump(cheat_sheet, file, ensure_ascii=False, indent=2)
     print("\r\033[KDownload \033[1;32m[Done]\033[0m: cheat_sheet <-- DynamoDB table")
 
 
@@ -129,7 +129,7 @@ def merge():
         cheat_sheet.setdefault(question, []).extend([a for a in answers if a not in cheat_sheet[question]])
     # Over write cheat_sheet.json file
     with open('cheat_sheet.json', 'w') as file:
-        json.dump(cheat_sheet, file, ensure_ascii=False)
+        json.dump(cheat_sheet, file, ensure_ascii=False, indent=2)
     # Upload cheat_sheet to table on cloud
     upload()
     print("\033[A\033[KDownload \033[1;32m[Done]\033[0m: cheat_sheet <-> DynamoDB table")
