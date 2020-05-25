@@ -243,7 +243,7 @@ def take_quiz():
         print("Update Database \033[1;34m[failed]\033[0m: no need to update!")
     # Save the database to json file
     with open('cheat_sheet.json','w') as file:
-        json.dump(cheat_sheet, file, ensure_ascii=False)
+        json.dump(cheat_sheet, file, ensure_ascii=False, indent=2)
 
 
 def _get_daily_sentence():
