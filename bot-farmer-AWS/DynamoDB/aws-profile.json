@@ -1,0 +1,6 @@
+{
+    "IAM access key": "AWS_ACCESS_KEY_ID",
+    "IAM secret key": "AWS_SECRET_ACCESS_KEY",
+    "region": "AWS_DEFAULT_REGION",
+    "table": "1point3acres_cheat-sheet"
+}
