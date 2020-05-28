@@ -1,0 +1,5 @@
+{
+    "Bucket": "user bucket name",
+    "SQS URL": "sqs to allocate tasks",
+    "Preserve Days": "7"
+}

@@ -1,0 +1,7 @@
+{
+    "S3_USERS_BUCKET": "user bucket name",
+    "DYNAMODB_TABLE": "cheat sheet table name",
+    "STATIC_WEBSITE": "website url",
+    "GMAIL_ACCOUNT": "Gmail account used to send email",
+    "GMAIL_PASSWORD": "password of Gmail account"
+}
