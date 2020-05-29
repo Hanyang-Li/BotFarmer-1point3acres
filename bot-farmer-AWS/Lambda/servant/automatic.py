@@ -194,7 +194,7 @@ def take_quiz(given_ans=None):
     question = re.search(RE_QUIZ_QUESTION, data).group(1).strip()
     options = dict([(t[1].strip(), t[0]) for t in re.findall(RE_QUIZ_ANSWERS,data)])
     # Avoid of question changed case
-    if log['take quiz']['content'].setdefault('question', question) != question:
+    if log['take quiz'].setdefault('content', {}).setdefault('question', question) != question:
         given_ans = None
         log['num'] = datetime.utcnow().strftime('%Y%m%d%H%M%S')
     log['take quiz']['content']['options'] = dict([(t[0], t[1].strip()) for t in re.findall(RE_QUIZ_ANSWERS,data)])
