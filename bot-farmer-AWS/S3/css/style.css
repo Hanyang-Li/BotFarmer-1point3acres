@@ -1,0 +1,108 @@
+:root {
+  --color-black: #343434;
+  --color-white: #fff;
+  --color-blue-dark: #1d355d;
+  --color-pink: #ff5161;
+  --color-yelow: #00a2d2;
+  --font-sans-serif: "Source Sans Pro", sans-serif;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  color: var(--color-black);
+  background-color: var(--color-yelow);
+  font-family: var(--font-sans-serif);
+  font-size: 1.8rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+h2 {
+  color: var(--color-blue-dark);
+  font-size: 2.8rem;
+  font-weight: 600;
+  margin: 0 0 1rem;
+}
+
+/* Quiz
+-------------------------*/
+.quiz-container {
+  background: var(--color-white);
+  width: 80%;
+  padding: 3rem 4rem;
+  margin: 6rem auto;
+  max-width: 48rem;
+  border-radius: 4px;
+}
+
+.quiz-form {
+  margin: 2rem 0;
+}
+
+.quiz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+}
+
+.quiz-question {
+  margin-bottom: 2.2rem;
+  padding-bottom: 3.2rem;
+  border-bottom: 1px solid #eee;
+}
+
+.quiz-question p {
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+}
+
+.quiz-hint {
+  font-size: 1.8rem;
+}
+
+input[type="radio"] {
+  cursor: pointer;
+}
+
+/* Form
+-------------------------*/
+.form-check {
+  margin-bottom: 0.6rem;
+}
+
+.form-check label {
+  display: block;
+  margin-top: -2.7rem;
+  margin-left: 2.7rem;
+}
+
+.submit {
+  text-align: right;
+}
+
+button {
+  background: var(--color-blue-dark);
+  color: var(--color-white);
+  cursor: pointer;
+  font-family: var(--font-sans-serif);
+  font-size: 1.6rem;
+  padding: 1.2rem 2rem;
+  border: none;
+  border-radius: 4px;
+}
+
+/* Accessibility
+-------------------------*/
+.visually-hidden {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+}

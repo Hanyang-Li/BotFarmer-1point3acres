@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>BotFarmer - Daily Quiz</title>
+    <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=0.7, minimum-scale=0.7, maximum-scale=1.5, user-scalable=yes" />
+    <link rel="stylesheet" href="./css/style.css" />
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.685.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  </head>
+  <body>
+    <main class="container" id="valid">
+      <section class="quiz-container">
+        <header class="quiz-header">
+          <h2>Daily Quiz</h2>
+          <div class="quiz-hint">
+            <p></p>
+          </div>
+        </header>
+
+        <!-- Quiz form -->
+        <form class="quiz-form" autocomplete="off">
+          <!-- Question -->
+          <div class="quiz-question" role="radiogroup">
+            <p></p>
+            <div class="form-check">
+              <input type="radio" id="o1" name="q" value="1" />
+              <label for="o1"></label>
+            </div>
+            <div class="form-check">
+              <input type="radio" id="o2" name="q" value="2" />
+              <label for="o2"></label>
+            </div>
+            <div class="form-check">
+              <input type="radio" id="o3" name="q" value="3" />
+              <label for="o3"></label>
+            </div>
+            <div class="form-check">
+              <input type="radio" id="o4" name="q" value="4" />
+              <label for="o4"></label>
+            </div>
+          </div>
+          <!-- end question -->
+          <div class="submit">
+            <button type="submit">Submit</button>
+          </div>
+        </form>
+        <!-- end quiz -->
+      </section>
+    </main>
+    <script src="./js/index.js"></script>
+  </body>
+</html>
