@@ -74,7 +74,7 @@ def set_user_info(uid, passwd, log_num=None):
     user['uid'] = uid
     user['passwd'] = passwd
     try:
-        obj = s3.Object(S3_USERS_BUCKET, '{}/log/{}.json'.format(uid, log_num))
+        obj = s3.Object(S3_USERS_BUCKET, 'users/{}/log/{}.json'.format(uid, log_num))
         log = json.loads(obj.get()['Body'].read().decode('utf-8'))
     except:
         log['num'] = datetime.utcnow().strftime('%Y%m%d%H%M%S')
@@ -84,6 +84,15 @@ def set_user_info(uid, passwd, log_num=None):
 
 # Create a ssesion to make requests
 session = requests.Session()
+
+def close_lambda():
+    """
+    Called by lambda function when it has done to eliminate affects of global variables
+    """
+    global session, log
+    log = {}
+    session.cookies.clear()
+    session.close()
 
 
 def login(func):
@@ -221,6 +230,7 @@ def take_quiz(given_ans=None):
         _send_email(email, url)
         log['take quiz']['status'] = 'suspend'
         log['take quiz']['notes'] = 'waiting for answer from user'
+        log['take quiz']['email url'] = url
         return log
     
     # Keep recognizing verify code if it is wrong for 10 times
@@ -272,7 +282,7 @@ def take_quiz(given_ans=None):
     
     # Update database
     answers = item['Answers']
-    log['take quiz']['content']['database'] = {'key': question, 'value': {'before': answers}}
+    log['take quiz']['content']['database'] = {'key': question, 'value': {'before': [a for a in answers]}}
     if is_right and len(recommendations) != 1:
         # Remove all the answers which were recommended
         for answer in recommendations:
