@@ -14,7 +14,8 @@ URL_LOGIN = 'https://www.1point3acres.com/bbs/member.php?mod=logging&action=logi
 URL_BBS = 'https://www.1point3acres.com/bbs/'
 URL_CHECK_IN = 'https://www.1point3acres.com/bbs/plugin.php?id=dsu_paulsign:sign&operation=qiandao&infloat=1&sign_as=1&inajax=1'
 URL_GET_QUIZ = 'https://www.1point3acres.com/bbs/plugin.php?id=ahome_dayquestion:pop&infloat=yes&handlekey=pop&inajax=1&ajaxtarget=fwin_content_pop'
-URL_VERIFY_IMAGE = 'https://www.1point3acres.com/bbs/misc.php?mod=seccode&update=87942&idhash=SA00'
+URL_ANOTHER_VERIFY = 'https://www.1point3acres.com/bbs/misc.php?mod=seccode&action=update&idhash=SA00&inajax=1&ajaxtarget=seccode_SA00'
+URL_VERIFY_IMAGE = 'https://www.1point3acres.com/bbs/misc.php?mod=seccode&update={}&idhash=SA00'
 URL_VERIFY_CODE = 'https://www.1point3acres.com/bbs/misc.php?mod=seccode&action=check&inajax=1&&idhash=SA00&secverify='
 URL_TAKE_QUIZ = 'https://www.1point3acres.com/bbs/plugin.php?id=ahome_dayquestion:pop'
 
@@ -30,6 +31,7 @@ RE_QUIZ_TAKEN = r'您今天已经参加过答题，明天再来吧！'
 RE_QUIZ_HASH = r'<input type=\"hidden\" name=\"formhash\" value=\"(.{8})\">'
 RE_QUIZ_QUESTION = r'<b>【题目】<\/b>&nbsp;(.*)<\/font>'
 RE_QUIZ_ANSWERS = r'name=\"answer\" value=\"(\d)\"\s*>&nbsp;&nbsp;(.*?)<\/div>'
+RE_VERIFY_NUM = r'src=\"misc\.php\?mod=seccode&update=(\d*)\&idhash=SA00\"'
 RE_RIGHT_VERIFY = r'<root><\!\[CDATA\[succeed\]\]><\/root>'
 RE_EXPIRE_VERIFY = r'抱歉，验证码填写错误'
 RE_WRONG_ANSWER = r'抱歉，回答错误！扣除1大米'
@@ -100,19 +102,23 @@ def check_in():
     """
     Take daily check in operation, fill the form with random mood and different saying everyday.
     """
+    mood = _get_mood()
+    saying = _get_daily_sentence()
+    verify_code = _get_verify_code()
     print("Check In ", end='')
     formhash = re.search(RE_CHECK_IN_HASH, session.get(URL_BBS, headers=HEADERS).text)
     if not formhash:
         print("\033[1;34m[failed]\033[0m: you have already checked in today!")
         return
-    mood = _get_mood()
-    saying = _get_daily_sentence()
+    # Generate form, 'qdmode' is check in mode, 1 means say anything you like
     body = {
         'formhash': formhash.group(1),
         'qdxq': mood,
-        'qdmode': 2,
+        'qdmode': 1,
         'todaysay': saying,
-        'fastreply': 0
+        'fastreply': 0,
+        'sechash': 'SA00',
+        'seccodeverify': verify_code
     }
     response = session.post(URL_CHECK_IN, headers=HEADERS, data=body)
     if re.search(RE_CANNOT_CHECK_IN, response.text):
@@ -181,26 +187,10 @@ def take_quiz():
         print("  \033[1;34mA: \033[0m{}".format(prompt), end='')
         option_text = [ans[0] for ans in options.items() if ans[1] == correct][0]
         print("[\033[1;34m{}\033[0m] \033[1m{}\033[0m".format(correct, option_text))
-    
-    # Keep recognizing verify code if it is wrong
-    # Important variable: verify_code
-    is_wrong = True
-    while is_wrong:
-        print("Recognize Verify \033[1;34m[pending]: \033[0m", end='')
-        # Get the latest verify code image
-        verify_image = Image.open(BytesIO(session.get(URL_VERIFY_IMAGE, headers=HEADERS).content))
-        # Recognize verify code from the image
-        verify_code = _recognize_verify(verify_image)
-        print(verify_code)
-        # Check whether the code is right or wrong
-        verify_status = session.get(URL_VERIFY_CODE + verify_code, headers=HEADERS).text
-        sys.stdout.write('\033[A\033[K')
-        if (re.search(RE_RIGHT_VERIFY, verify_status)):
-            is_wrong = False
-            print("Recognize Verify \033[1;32m[succeed]: \033[0m{}".format(verify_code))
 
     # Submit the form
     # Important variable: is_right
+    verify_code = _get_verify_code()
     body = {
         'formhash': formhash,
         'answer': correct,
@@ -258,6 +248,30 @@ def _get_mood():
     """
     moods = ['kx', 'ng', 'ym', 'wl', 'nu', 'ch', 'fd', 'yl', 'shuai']
     return moods[random.randint(0, len(moods)-1)]
+
+def _get_verify_code():
+    """
+    Get a new verify image and recognize it to string
+    """
+    # Keep recognizing verify code if it is wrong
+    is_wrong = True
+    while is_wrong:
+        print("Recognize Verify \033[1;34m[pending]: \033[0m", end='')
+        # Get the latest verify code image
+        response = session.get(URL_ANOTHER_VERIFY, headers=HEADERS)
+        verify_num = re.search(RE_VERIFY_NUM, response.text).group(1)
+        verify_url = URL_VERIFY_IMAGE.format(verify_num)
+        verify_image = Image.open(BytesIO(session.get(verify_url, headers=HEADERS).content))
+        # Recognize verify code from the image
+        verify_code = _recognize_verify(verify_image)
+        print(verify_code)
+        # Check whether the code is right or wrong
+        verify_status = session.get(URL_VERIFY_CODE + verify_code, headers=HEADERS).text
+        sys.stdout.write('\033[A\033[K')
+        if (re.search(RE_RIGHT_VERIFY, verify_status)):
+            is_wrong = False
+            print("Recognize Verify \033[1;32m[succeed]: \033[0m{}".format(verify_code))
+            return verify_code
 
 def _recognize_verify(img):
     """
