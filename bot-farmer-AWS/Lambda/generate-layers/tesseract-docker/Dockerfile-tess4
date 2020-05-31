@@ -57,7 +57,6 @@ RUN curl -L https://github.com/tesseract-ocr/tessdata${TESSERACT_DATA_SUFFIX}/ra
 COPY . ${DIST}/tesseract/share/tessdata/
 
 RUN rm Dockerfile*
-RUN rm READM*
 RUN rm build_*
 RUN rm *.zip; exit 0
 
