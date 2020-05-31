@@ -43,7 +43,7 @@ HEADERS = {
     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36',
 }
 
-with open('user.json', 'r') as f:
+with open('user.json', 'r', encoding='utf-8') as f:
     user = json.load(f)
 
 session = requests.Session()
@@ -152,7 +152,7 @@ def take_quiz():
     # Get the answer of quiz
     # Important variables: cheat_sheet, recommendations, correct
     # Get the intersect set of options and cheat sheet as the recommended answers
-    with open('cheat_sheet.json', 'r') as f:
+    with open('cheat_sheet.json', 'r', encoding='utf-8') as f:
         cheat_sheet = json.load(f)
     recommendations = [ans for ans in options if ans in cheat_sheet.setdefault(question, list())]
     print("\033[1;32m[succeed]\033[0m")
@@ -232,7 +232,7 @@ def take_quiz():
     else:
         print("Update Database \033[1;34m[failed]\033[0m: no need to update!")
     # Save the database to json file
-    with open('cheat_sheet.json','w') as file:
+    with open('cheat_sheet.json','w', encoding='utf-8') as file:
         json.dump(cheat_sheet, file, ensure_ascii=False, indent=2)
 
 
