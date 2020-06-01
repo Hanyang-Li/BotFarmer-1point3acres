@@ -310,7 +310,7 @@ Action=SendMessage&MessageBody=$input.json('$')
 
 S3 桶中存储静态网页文件和用户信息。现将静态网页连接上刚创建的 API 接口。进入项目目录 `bot-farmer-AWS/S3/js/`，打开 `index.js` 文件，找到并修改这句（默认为第4行）：
 
-```JavaScript
+```javascript
 // Config of this web page
 const SQS_API_URL = 'API Gateway 部署后提供的 POST 方法的调用 URL';
 ```
@@ -390,6 +390,74 @@ const SQS_API_URL = 'API Gateway 部署后提供的 POST 方法的调用 URL';
 
 将本地项目目录 `bot-farmer-AWS/Lambda/master/` 中的所有文件打包为一个 `.zip` 压缩文件。回到 AWS 云端，在 `Master` 函数代码中找到选项`代码输入种类`，并选择`上传 .zip 文件`，将刚打包的压缩文件上传。*最后等文件上传后，别忘记点击右上角的`保存`*。
 
+-----
+
 ##### Servant Lambda Function
+
+先为 `Servant` 创建 `role（角色）`。与为 `Master` 创建角色相同，登录 AWS 后，在服务中搜索 `IAM`。在`访问管理`中选择`角色`，再点击`创建角色`。选择 `AWS 产品`，再选择 `Lambda`，点击下方`下一步：权限`。
+
+由于 `Servant` 的工作是通过 SQS 发送的信息触发任务，读取 S3 存储桶中用户的信息，为用户签到，再从 DynamoDB 中找到每日答题的答案，进而帮助用户完成答题，之后把工作的日志发送给 CloudWatch，所以再步骤2中，再次偷懒勾选以下策略：
+
+* `AmazonSQSFullAccess`
+* `AmazonS3FullAccess`
+* `AmazonDynamoDBFullAccess`
+* `CloudWatchLogsFullAccess`
+
+点击下方`下一步：标签`，再点`下一步`跳过步骤3。来到步骤4，给角色起一个名称，检查`策略`中4个之前选择的策略是否齐全，确认无误后，点击下方`创建角色`。
+
+以相同于创建 `Master` 函数的方法创建 `Servant` 函数，依然选择`运行时`为 `Python 3.7`，角色是指为刚创建的 `Servant` 的角色。
+
+由于本 `Servant` 函数处理任务受数据库是否提供答案、验证码识别是否正确等不确定因素的影响，所以默认的函数执行性能和成本限制可能会导致函数在运行结束前就被强行终止，因此我们要修改默认的函数执行性能。*本操作会使函数的成本增加，心疼小钱钱的话要再三考虑。*进入刚创建的函数，向下滚动页面，找到`基本设置`，点击`编辑`进入。按照自己的需求调整`内存`和`超时`，调整好后，点击下方`保存`。
+
+回到本地项目目录 `bot-farmer-AWS/Lambda/servant`，找到 `config.json` 文件，打开修改：
+
+```json
+{
+    "S3_USERS_BUCKET": "S3 存储桶的名称",
+    "DYNAMODB_TABLE": "DynamoDB 中 cheat sheet 表格的名称",
+    "STATIC_WEBSITE": "S3 静态托管的网页终端节点 URL",
+    "GMAIL_ACCOUNT": "给用户发邮件的邮箱，由于用 Gmail 服务器，所以要提供 Gmail 邮箱",
+    "GMAIL_PASSWORD": "Gmail 邮箱的登录密码"
+}
+```
+
+将本地项目目录 `bot-farmer-AWS/Lambda/servant/` 中的所有文件打包为一个 `.zip` 压缩文件。回到 AWS 云端，在 `Servant` 函数代码中找到选项`代码输入种类`，并选择`上传 .zip 文件`，将刚打包的压缩文件上传。*最后等文件上传后，别忘记点击右上角的`保存`*。
+
+在 AWS 云端 `Servant` 函数页面内，找到 `Designer` 模块，点击里边的 `添加触发器`，这里我们要将 SQS 作为 `Servant` 的触发器，所以选择 `SQS`，输入 SQS 队列的 ARN 信息，*批处理大小设置为1*，*批处理大小设置为1*，*批处理大小设置为1*，点击下方`添加`。
+
+这时函数还是不能运行，原因是缺少所谓的 Python 依赖库和 tesseract 软件依赖环境，这时我们要通过创建 Lambda `layer（层）`给函数提供运行环境。
+
+回到本地项目目录 `bot-farmer-AWS/Lambda/generate-layers/` 中，如果图省事可以使用 `layers/` 文件夹中我已经打包好的 `.zip` 压缩包。
+
+在 AWS 服务中搜索 `Lambda`，在左手边选择 `层`，点击`创建层`。 你会看到下图页面。名称任意起，习惯以依赖库的名称命名；选择`上传 .zip 文件`，并将项目目录 `bot-farmer-AWS/Lambda/generate-layers/layers/` 中对应的依赖库 `.zip` 压缩包上传；`兼容运行时`只选择 `Python 3.7`；都填写完毕后，点击下方`创建`。
+
+![Lambda 创建层页面截图](./images/readme/aws-18.png)
+
+要注意的是一个层只能添加一个依赖库，所以你要分别为项目目录 `bot-farmer-AWS/Lambda/generate-layers/layers/` 中4个依赖库分别创建4个层。
+
+回到 AWS 云端 `Servant` 函数页面内，依然是在 `Designer` 模块内，找到 `Layers`，点击`添加层`，选择刚创建的层，*也是一次只能添加一层*，点击`添加`，将其加入到 `Servant` 函数内，重复4次将所有层全部添加进去之后的效果如图所示：
+
+![Lambda 添加层后初始页面截图](./images/readme/aws-19.png)
+
+这时 `Servant` 函数还是不能运行，因为你还需要把层内依赖库的路径添加到函数的环境变量中。在 AWS 云端 `Servant` 函数页面内，向下滚动，找到`环境变量`，点击`编辑`，你会看到如下页面。在`键`中填写`PYTHONPATH`，再在`值`中填写 `/opt/`，填写完后点击下方`保存`。*对 Lambda 函数进行这些更改后不要忘记点击右上角的`保存`，应用所作出的修改！*
+
+![Lambda 环境变量页面截图](./images/readme/aws-20.png)
+
+-----
+
+#### CloudWatch
+
+到这里 AWS 云端结构基本搭建完成，只差最后一环，即定时触发 `Master` 函数的 CloudWatch 事件规则。登录 AWS 后，在服务中搜索 `CloudWatch`。在左手`事件`一栏中找到`规则`。点击`创建规则`，选择`计划`，再选择 `Cron 表达式`，这里可以定义每日触发函数的 UTC 时间，需要注意的是：
+
+* 一亩三分地论坛每日签到更新时间：北京时间0点，表达式为 `1 16 * * ? *`
+* 一亩三分地论坛每日答题更新时间：UTC 时间0点，表达式为 `1 0 * * ? *`
+
+表达式第一位代表 UTC 时间分钟，第二位代表 UTC 时间小时，因为是每日触发，所以其他位填写通配符。其实这里时间可以任意填写，由于我是压着一亩三分地论坛答题更新时间进行函数的触发，为了防止延迟不同步，所以我其实设置的是在整点过1分的时候触发函数。
+
+在右边选择`添加目标`，选择 `Lambda 函数`，并选择 `Master` 函数名，选择完后点击`配置详细信息`。
+
+![CloudWatch 添加事件规则截图](./images/readme/aws-21.png)
+
+给规则命名后，点击`创建规则`。至此 BotFarmer AWS 云端部署版搭建完成。
 
 
