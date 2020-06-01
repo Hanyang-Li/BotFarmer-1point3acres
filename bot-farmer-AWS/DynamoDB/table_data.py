@@ -5,7 +5,7 @@ import json
 import boto3
 
 # Initialize AWS environment variables
-with open('aws-profile.json', 'r') as file:
+with open('aws-profile.json', 'r', encoding='utf-8') as file:
     profile = json.load(file)
 os.environ.setdefault("AWS_ACCESS_KEY_ID", profile['IAM access key'])
 os.environ.setdefault("AWS_SECRET_ACCESS_KEY", profile['IAM secret key'])
@@ -32,13 +32,13 @@ def load_tables(func):
 
             # Check local table (json file)
             try: 
-                with open('cheat_sheet.json', 'r') as file:
+                with open('cheat_sheet.json', 'r', encoding='utf-8') as file:
                     cheat_sheet = json.load(file)
             except (FileNotFoundError, json.decoder.JSONDecodeError) as error:
                 # Case that file does not exist or it is empty even without '{}'
                 print("Create cheat_sheet JSON file ", end='')
                 cheat_sheet = dict()
-                with open('cheat_sheet.json', 'w') as file:
+                with open('cheat_sheet.json', 'w', encoding='utf-8') as file:
                     json.dump(cheat_sheet, file, ensure_ascii=False)
                 print("\033[1;32m[Done]\033[0m")
             
@@ -111,7 +111,7 @@ def download():
     for item in items:
         cheat_sheet[item['Question']] = item['Answers']
     # Over write cheat_sheet.json file
-    with open('cheat_sheet.json', 'w') as file:
+    with open('cheat_sheet.json', 'w', encoding='utf-8') as file:
         json.dump(cheat_sheet, file, ensure_ascii=False, indent=2)
     print("\r\033[KDownload \033[1;32m[Done]\033[0m: cheat_sheet <-- DynamoDB table")
 
@@ -128,7 +128,7 @@ def merge():
         answers = item['Answers']
         cheat_sheet.setdefault(question, []).extend([a for a in answers if a not in cheat_sheet[question]])
     # Over write cheat_sheet.json file
-    with open('cheat_sheet.json', 'w') as file:
+    with open('cheat_sheet.json', 'w', encoding='utf-8') as file:
         json.dump(cheat_sheet, file, ensure_ascii=False, indent=2)
     # Upload cheat_sheet to table on cloud
     upload()
