@@ -460,4 +460,101 @@ const SQS_API_URL = 'API Gateway 部署后提供的 POST 方法的调用 URL';
 
 给规则命名后，点击`创建规则`。至此 BotFarmer AWS 云端部署版搭建完成。
 
+-----
 
+### 打包自己的层 .zip 文件
+
+如果一亩三分地更新了验证码生成机制，或者你希望网用其他 Python 依赖库修改本项目，你就需要自己打包 Lambda Layers 所需要的 .zip 文件了。*以下打包操作需要你在本地安装 Docker！*
+
+#### 制作 tesseract 层
+
+命令行工具*进入本地项目目录 `bot-farmer-AWS/Lambda/generate-layers/tesseract-docker`*，将你自己训练的 `verify-codes.traineddata` 文件替换目录中原文件，在命令行工具中执行以下命令：
+
+```console
+$ bash build_tesseract4.sh
+```
+
+等待命令运行完成，在目录中就可以看到打包好的 `tesseract-layer.zip` 文件。
+
+------
+
+#### 制作 Python 依赖库层
+
+命令行工具*进入本地项目目录 `bot-farmer-AWS/Lambda/generate-layers/packages-docker`*，修改目录中 `build_py37_pkgs.sh` 文件内容（默认在第4行），修改添加 Python 依赖库名字：
+
+```sh
+declare -a arr=("requests" "pytesseract" "Pillow")
+```
+
+之后在命令行工具中执行以下命令：
+
+```console
+$ bash build_py37_pkgs.sh
+```
+
+等待命令运行完成，在目录中就可以看到各个依赖库名称命名的多个 .zip 文件。
+
+-----
+
+### 训练自己的 tesseract-ocr 模型
+
+#### 制作训练集
+
+由于目前一亩三分地论坛的验证码是由英文字母和数字组成的，所以应当把从论坛上请求下来的验证码进行降噪处理，再进行分割，保证每张图片上只有一个字符。再新建多个文件夹，每个文件夹中只保存一种字符（区分大小写），文件夹的名字为其中保存的字符。如果是英文小写字母，因为有些文件系统（macOS）认为大小写重名，所以在小写英文字母后加上 `_` 下划线，以作区分。
+
+完成上边的数据集 ground truth 标定操作后，将所有数据集文件夹打包为 `raw.zip` 压缩文件，放入项目目录 `train-tesseract/dataset/` 中，替换原有的 `raw.zip` 文件。再在命令行工具中执行以下命令，生成用于训练的 `ground-truth.zip` 训练集：
+
+```console
+$ python make_dataset.py
+```
+
+执行完命令后，项目目录 `train-tesseract/dataset/` 中原有的 `ground-truth.zip` 文件已被替换为最新的训练集文件，将这个文件拷贝到项目目录 `train-tesseract/train-docker/` 中，替换原有文件。
+
+这里需要说明，通过观察我标定训练集，可以看出里边存在很多大小字体都一样的重复字符，我没有去除重复内容的原因是我希望训练出来的模型是过拟合模型，而不具有太强的泛化能力。原因是一亩三分地的验证码生成机制非常死板，我的模型只要能识别好地里生成的验证码就好，模型越是过拟合，识别效果反而会越好。
+
+-----
+
+#### 训练模型
+
+*使用命令行工具中进入项目目录 `train-tesseract/train-docker/`*，执行以下命令，创建用于训练的 Docker 容器：
+
+```console
+$ docker-compose -f docker.dev.yml up
+```
+
+再使用命令行工具，执行以下命令进入创建好的 Docker 容器：
+
+```console
+$ docker exec -ti train-ocr bash
+```
+
+在 Docker 容器的 bash 中执行以下命令，训练自己的 tesseract-ocr 模型：
+
+```console
+$ make training MODEL_NAME=verify-codes START_MODEL=eng PSM=10 TESSDATA=/usr/local/share/tessdata
+```
+
+这里注意各个参数的含义：
+
+* `MODEL_NAME`：训练后的模型名称，这个如果更改，项目中部分文件需要进行改动
+* `START_MODEL`：用什么语言开始训练，默认是 `eng` 英语
+* `PSM`：识别模式，默认为10，即识别单字符；常用的值还有7，即识别但行文字
+* `TESSDATA`：Docker 容器中 `tessdata/` 目录所在路径，不应更改
+
+命令执行完毕后即可在项目目录 `tain-tesseract/train-docker/src/tesstrain/data/` 中找到训练好的 `.traineddata` 文件。
+
+如果对模型的名字进行了更该，还希望能够运行本项目中的自动签到、答题脚本，无论是本地命令行版还是 AWS 云端版，找到 BotFarmer 的签到、答题任务脚本 `automatic.py`，打开找到函数 `_recogize_verify(img)`，修改其中这一句：
+
+```python
+char = _refine(pytesseract.image_to_string(c_img, lang='你自定义的模型名称', config='--psm 10'))
+```
+
+## 参考文章
+
+1. 一亩三分地自动签到 Python 脚本：[https://clarka.github.io/1p3c-auto-punch-in/](https://clarka.github.io/1p3c-auto-punch-in/)
+2. 验证码处理识别：[https://github.com/VividLau/1p3a_python_script](https://github.com/VividLau/1p3a_python_script)
+3. 原始 cheat sheet 题库：[https://github.com/VividLau/1p3a_python_script/blob/master/question_list.json](https://github.com/VividLau/1p3a_python_script/blob/master/question_list.json)
+4. 训练 tesseract-ocr 模型：[https://medium.com/@guiem/how-to-train-tesseract-4-ebe5881ff3b7](https://medium.com/@guiem/how-to-train-tesseract-4-ebe5881ff3b7)
+5. 创建 AWS Lambda Function 层：[https://medium.com/analytics-vidhya/build-tesseract-serverless-api-using-aws-lambda-and-docker-in-minutes-dd97a79b589b](https://medium.com/analytics-vidhya/build-tesseract-serverless-api-using-aws-lambda-and-docker-in-minutes-dd97a79b589b)
+6. 为 SQS 连接 API Gateway 接口：[https://medium.com/@pranaysankpal/aws-api-gateway-proxy-for-sqs-simple-queue-service-5b08fe18ce50](https://medium.com/@pranaysankpal/aws-api-gateway-proxy-for-sqs-simple-queue-service-5b08fe18ce50)
+7. 为 SQS 连接 API Gateway 接口：[https://codeburst.io/100-serverless-asynchronous-api-with-apig-sqs-and-lambda-2506a039b4d](https://codeburst.io/100-serverless-asynchronous-api-with-apig-sqs-and-lambda-2506a039b4d)
