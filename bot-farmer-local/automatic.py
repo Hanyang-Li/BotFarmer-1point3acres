@@ -334,7 +334,8 @@ def _recognize_verify(img):
             try:
                 char = _refine(pytesseract.image_to_string(c_img, lang='verify-codes', config='--psm 10'))
             except:
-                print("\033[KRecognize Verify \033[1;31m[failed]\033[0m: cannot find tesseract or tessdata!")
+                print("\r\033[KRecognize Verify \033[1;31m[failed]\033[0m: cannot find tesseract or tessdata!")
+                sys.exit(1)
             ans += char
     return ans
 
