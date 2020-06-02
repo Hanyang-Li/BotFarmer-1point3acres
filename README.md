@@ -70,6 +70,12 @@ $ pipenv install
 $ pip3 install requests Pillow pytesseract
 ```
 
+Windows 平台用户要多安装一个 Python 依赖库：
+
+```console
+$ pip3 install colorama
+```
+
 #### 修改配置文件
 
 首先我们通过抓包获取一亩三分地前端加密后的登陆密码。用浏览器访问一亩三分地论坛主页 [https://www.1point3acres.com/bbs/](https://www.1point3acres.com/bbs/ "一亩三分地")，退出登录后打开浏览器的网页检查器，选择 `Network（网络）`选项卡，勾选 `Preserve log（保留日志）`选项，保持`录制`为打开状态，如图：
@@ -173,6 +179,12 @@ $ pipenv install
 
 ```console
 $ pip3 install boto3
+```
+
+Windows 平台用户要多安装一个 Python 依赖库：
+
+```console
+$ pip3 install colorama
 ```
 
 打开命令行工具，*进入项目目录 `bot-farmer-AWS/DynamoDB/`*。如果之前安装了 Python 虚拟环境，执行以下命令将其打开：
