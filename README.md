@@ -7,10 +7,10 @@ BotFarmer 是一亩三分地论坛每日签到、答题赚取积分的自动脚�
 ## 环境要求
 
 * 开发环境：macOS Catalina 10.15.5
-* 测试环境：macOS Catalina 10.15.5
+* 测试环境：macOS Catalina 10.15.5、Windows 10 (1903)
 * Python 版本：3.7.6
-* Python 依赖库：requests, Pillow, pytesseract, boto3
-* 软件依赖：tesseract-ocr 4.0.0+, docker
+* Python 依赖库：requests、Pillow、pytesseract、boto3、colorama（针对 Windows 平台命令行显示问题）
+* 软件依赖：tesseract-ocr 4.0.0+、docker
 
 
 ## 使用说明
@@ -53,6 +53,8 @@ $ cp verify-codes.traineddata /usr/local/Cellar/tesseract/4.1.1/share/tessdata/
 对于 Windows 平台用户，请访问 [https://digi.bib.uni-mannheim.de/tesseract/](https://digi.bib.uni-mannheim.de/tesseract/ "Tesseract Versions") 下载 tesseract 4.0.0 之后版本的安装包，运行安装包，根据提示将软件安装在本地。
 
 在安装目录（默认为 `C:\Program Files (x86)\Tesseract-OCR`）中找到 `tessdata` 文件夹，将本项目目录 `train-tesseract/` 中的 `verify-codes.traineddata` 文件复制到该文件夹中，完成模型的导入。
+
+此时 Windows 平台用户依然不能运行 tesseract，*因为还需设置环境变量*，需要在环境变量 `Path` 中将 tesseract 安装目录（默认为 `C:\Program Files (x86)\Tesseract-OCR`）添加进去。
 
 #### 安装 Python 依赖库
 
