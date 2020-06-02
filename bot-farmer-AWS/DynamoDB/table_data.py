@@ -2,7 +2,13 @@ import os
 import sys
 import time
 import json
+import platform
 import boto3
+
+# Windows cmd needs colorama to run ANSI format code
+if 'windows' in platform.system().lower():
+    import colorama
+    colorama.init()
 
 # Initialize AWS environment variables
 with open('aws-profile.json', 'r', encoding='utf-8') as file:

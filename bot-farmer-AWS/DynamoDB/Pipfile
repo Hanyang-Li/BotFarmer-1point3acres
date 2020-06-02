@@ -7,6 +7,7 @@ verify_ssl = true
 
 [packages]
 boto3 = "*"
+colorama = "*"
 
 [requires]
 python_version = "3.7"
