@@ -108,14 +108,14 @@ def check_in():
     """
     Take daily check in operation, fill the form with random mood and different saying everyday.
     """
+    formhash = re.search(RE_CHECK_IN_HASH, session.get(URL_BBS, headers=HEADERS).text)
+    if not formhash:
+        print("Check In \033[1;34m[failed]\033[0m: you have already checked in today!")
+        return
     mood = _get_mood()
     saying = _get_daily_sentence()
     verify_code = _get_verify_code()
     print("Check In ", end='')
-    formhash = re.search(RE_CHECK_IN_HASH, session.get(URL_BBS, headers=HEADERS).text)
-    if not formhash:
-        print("\033[1;34m[failed]\033[0m: you have already checked in today!")
-        return
     # Generate form, 'qdmode' is check in mode, 1 means say anything you like
     body = {
         'formhash': formhash.group(1),
@@ -382,7 +382,7 @@ if __name__ == "__main__":
         argument = arguments[1]
         try:
             exec(argument + '()')
-        except:
+        except NameError:
             print("\033[1;31mInvalid argument {}, only [check_in / take_quiz] are valid\033[0m".format(argument))
     else:
         # Case that no argument passed other than filename
