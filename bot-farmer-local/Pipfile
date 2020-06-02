@@ -9,6 +9,7 @@ verify_ssl = true
 requests = "*"
 pillow = "*"
 pytesseract = "*"
+colorama = "*"
 
 [requires]
 python_version = "3.7"

@@ -2,11 +2,17 @@ import re
 import sys
 import json
 import random
+import platform
 from io import BytesIO
 from collections import defaultdict
 import requests
 import pytesseract
 from PIL import Image, ImageFilter
+
+# Windows cmd needs colorama to run ANSI format code
+if 'windows' in platform.system().lower():
+    import colorama
+    colorama.init()
 
 URL_DAILY_SENTENCE = 'http://open.iciba.com/dsapi/'
 URL_EMAIL = 'https://www.1point3acres.com/bbs/home.php?mod=spacecp&ac=profile&op=password'
@@ -256,7 +262,7 @@ def _get_verify_code():
     # Keep recognizing verify code if it is wrong
     is_wrong = True
     while is_wrong:
-        print("Recognize Verify \033[1;34m[pending]: \033[0m", end='')
+        print("Recognize Verify \033[1;34m[pending]: \033[0m", end='', flush=True)
         # Get the latest verify code image
         response = session.get(URL_ANOTHER_VERIFY, headers=HEADERS)
         verify_num = re.search(RE_VERIFY_NUM, response.text).group(1)
@@ -270,7 +276,7 @@ def _get_verify_code():
         sys.stdout.write('\033[A\033[K')
         if (re.search(RE_RIGHT_VERIFY, verify_status)):
             is_wrong = False
-            print("Recognize Verify \033[1;32m[succeed]: \033[0m{}".format(verify_code))
+            print("Recognize Verify \033[1;32m[succeed]\033[0m: {}".format(verify_code))
             return verify_code
 
 def _recognize_verify(img):
@@ -325,7 +331,10 @@ def _recognize_verify(img):
             c_img = img.crop((left, top, right, bottom))
             c_img = c_img.resize((c_img.size[0]*2, c_img.size[1]*2))
             c_img = c_img.filter(ImageFilter.GaussianBlur(radius=1))
-            char = _refine(pytesseract.image_to_string(c_img, lang='verify-codes', config='--psm 10'))
+            try:
+                char = _refine(pytesseract.image_to_string(c_img, lang='verify-codes', config='--psm 10'))
+            except:
+                print("\033[KRecognize Verify \033[1;31m[failed]\033[0m: cannot find tesseract or tessdata!")
             ans += char
     return ans
 
