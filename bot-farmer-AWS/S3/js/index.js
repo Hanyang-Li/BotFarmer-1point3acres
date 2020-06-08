@@ -5,7 +5,7 @@ window.onload = function() {
     
     // Initialize global variables
     const QUERY_STRING = window.location.search;  // Get the query behind '?' in URL
-    const URL_PARAMS = new URLSearchParams(QUERY_STRING);  // Parse the query into params
+    const URL_PARAMS = new URLSearchParams(QUERY_STRING.replace(/&amp;/g, '&'));  // Parse the query into params
     const UID = URL_PARAMS.get('uid');
     const LOG = URL_PARAMS.get('log');
     var question;
@@ -105,6 +105,7 @@ window.onload = function() {
             async: false, // Must sync with the main thread!
             type: 'GET',
             dataType: 'json',
+            cache: false,
             error: function() {
                 isValidLog = false;
             },
