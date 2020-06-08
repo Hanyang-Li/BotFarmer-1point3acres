@@ -1,4 +1,4 @@
-# BotFarmer-1point3acres
+# BotFarmer-1point3acres <!-- omit in toc -->
 
 BotFarmer 是一亩三分地论坛每日签到、答题赚取积分的自动脚本。项目分为本地命令行交互、AWS 云端部署两个版本。
 
@@ -6,7 +6,7 @@ BotFarmer 是一亩三分地论坛每日签到、答题赚取积分的自动脚�
 
 *题库日常更新，请移步 [cheat sheet](https://github.com/Hanyang-Li/BotFarmer-1point3acres/blob/master/bot-farmer-local/cheat_sheet.json)。*
 
-## 环境要求
+## 环境要求 <!-- omit in toc -->
 
 * 开发环境：macOS Catalina 10.15.5
 * 测试环境：macOS Catalina 10.15.5、Windows 10 (1903)
@@ -14,10 +14,32 @@ BotFarmer 是一亩三分地论坛每日签到、答题赚取积分的自动脚�
 * Python 依赖库：requests、Pillow、pytesseract、boto3、colorama（针对 Windows 平台命令行显示问题）
 * 软件依赖：tesseract-ocr 4.0.0+、docker
 
-
-## 使用说明
+## 使用说明 <!-- omit in toc -->
 
 分别介绍本地命令行版本环境的安装、脚本运行，AWS 云端部署版的搭建，以及tesseract模型的训练。
+
+- [本地命令行交互版](#本地命令行交互版)
+  - [安装 tesseract](#安装-tesseract)
+  - [安装 Python 依赖库](#安装-python-依赖库)
+  - [修改配置文件](#修改配置文件)
+  - [运行脚本](#运行脚本)
+- [AWS 云端部署版](#aws-云端部署版)
+  - [DynamoDB](#dynamodb)
+  - [SQS](#sqs)
+  - [API Gateway](#api-gateway)
+  - [S3](#s3)
+  - [Lambda Function](#lambda-function)
+    - [Master Lambda Function](#master-lambda-function)
+    - [Servant Lambda Function](#servant-lambda-function)
+  - [CloudWatch](#cloudwatch)
+- [打包自己的层 .zip 文件](#打包自己的层-zip-文件)
+  - [制作 tesseract 层](#制作-tesseract-层)
+  - [制作 Python 依赖库层](#制作-python-依赖库层)
+- [训练自己的 tesseract-ocr 模型](#训练自己的-tesseract-ocr-模型)
+  - [制作训练集](#制作训练集)
+  - [训练模型](#训练模型)
+
+-----
 
 ### 本地命令行交互版
 
@@ -565,7 +587,7 @@ $ make training MODEL_NAME=verify-codes START_MODEL=eng PSM=10 TESSDATA=/usr/loc
 char = _refine(pytesseract.image_to_string(c_img, lang='你自定义的模型名称', config='--psm 10'))
 ```
 
-## 参考文章
+## 参考文章 <!-- omit in toc -->
 
 1. 一亩三分地自动签到 Python 脚本：[https://clarka.github.io/1p3c-auto-punch-in/](https://clarka.github.io/1p3c-auto-punch-in/)
 2. 验证码处理识别：[https://github.com/VividLau/1p3a_python_script](https://github.com/VividLau/1p3a_python_script)
