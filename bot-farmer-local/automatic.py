@@ -14,7 +14,10 @@ if 'windows' in platform.system().lower():
     import colorama
     colorama.init()
 
-URL_DAILY_SENTENCE = 'http://open.iciba.com/dsapi/'
+URL_ICIBA_API = 'http://open.iciba.com/dsapi/'
+URL_ONE_API = 'http://api.youngam.cn/api/one.php'
+URL_SHANBAY_API = 'https://apiv3.shanbay.com/weapps/dailyquote/quote/'
+URL_JINRISHICI_API = 'https://v1.jinrishici.com/rensheng.txt'
 URL_EMAIL = 'https://www.1point3acres.com/bbs/home.php?mod=spacecp&ac=profile&op=password'
 URL_LOGIN = 'https://www.1point3acres.com/bbs/member.php?mod=logging&action=login&loginsubmit=yes&infloat=yes&lssubmit=yes&inajax=1'
 URL_BBS = 'https://www.1point3acres.com/bbs/'
@@ -244,9 +247,36 @@ def take_quiz():
 
 def _get_daily_sentence():
     """
-    Get Kingsoft dictionary daily sentence
+    Pick an API to get daily sentence randomly
     """
-    return json.loads(requests.get(URL_DAILY_SENTENCE).text).get('note')
+    api_table = {
+        'iciba': {
+            'url': URL_ICIBA_API,
+            'parse': "json.loads({}).get('note')"
+        },
+        'one': {
+            'url': URL_ONE_API,
+            'parse': "json.loads({}).get('data')[0]['text']"
+        },
+        'shanbay': {
+            'url': URL_SHANBAY_API,
+            'parse': "json.loads({}).get('translation')"
+        },
+        'jinrishici': {
+            'url': URL_JINRISHICI_API,
+            'parse': "{}"
+        }
+    }
+    while api_table:
+        api = [k for k in api_table.keys()][random.randint(0, len(api_table)-1)]
+        try:
+            response = requests.get(api_table[api]['url']).text
+            sentence = eval(api_table[api]['parse'].format('response'))
+            return sentence
+        except:
+            print("\033[1;31m[Warning]\033[0m: {} API failure!".format(api))
+            api_table.pop(api)
+    return '今天没什么好说的{}!'.format('啊'*random.randint(0,10))
 
 def _get_mood():
     """

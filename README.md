@@ -141,7 +141,14 @@ $ python automatic.py
 $ python automatic.py check_in
 ```
 
-脚本会随机选择一个心情，“今天最想说”中填写某字典每日一句，并自动识别验证码并检查验证码正确性。
+脚本会随机选择一个心情，“今天最想说”中填写每日一句，并自动识别验证码并检查验证码正确性。
+
+每日一句使用了多个API随机获取一句鸡（胡）汤（诌），API包括：
+
+* 金山词霸每日一句：[http://open.iciba.com/dsapi/](http://open.iciba.com/dsapi/)
+* 「ONE · 一个」：[http://api.youngam.cn/api/one.php](http://api.youngam.cn/api/one.php)
+* 扇贝单词每日一句：[https://apiv3.shanbay.com/weapps/dailyquote/quote/](https://apiv3.shanbay.com/weapps/dailyquote/quote/)
+* 今日诗词 GitHub 项目：[https://v1.jinrishici.com/rensheng.txt](https://v1.jinrishici.com/rensheng.txt)
 
 用如下命令进行答题操作：
 
@@ -592,7 +599,8 @@ char = _refine(pytesseract.image_to_string(c_img, lang='你自定义的模型名
 1. 一亩三分地自动签到 Python 脚本：[https://clarka.github.io/1p3c-auto-punch-in/](https://clarka.github.io/1p3c-auto-punch-in/)
 2. 验证码处理识别：[https://github.com/VividLau/1p3a_python_script](https://github.com/VividLau/1p3a_python_script)
 3. 原始 cheat sheet 题库：[https://github.com/VividLau/1p3a_python_script/blob/master/question_list.json](https://github.com/VividLau/1p3a_python_script/blob/master/question_list.json)
-4. 训练 tesseract-ocr 模型：[https://medium.com/@guiem/how-to-train-tesseract-4-ebe5881ff3b7](https://medium.com/@guiem/how-to-train-tesseract-4-ebe5881ff3b7)
-5. 创建 AWS Lambda Function 层：[https://medium.com/analytics-vidhya/build-tesseract-serverless-api-using-aws-lambda-and-docker-in-minutes-dd97a79b589b](https://medium.com/analytics-vidhya/build-tesseract-serverless-api-using-aws-lambda-and-docker-in-minutes-dd97a79b589b)
-6. 为 SQS 连接 API Gateway 接口：[https://medium.com/@pranaysankpal/aws-api-gateway-proxy-for-sqs-simple-queue-service-5b08fe18ce50](https://medium.com/@pranaysankpal/aws-api-gateway-proxy-for-sqs-simple-queue-service-5b08fe18ce50)
-7. 为 SQS 连接 API Gateway 接口：[https://codeburst.io/100-serverless-asynchronous-api-with-apig-sqs-and-lambda-2506a039b4d](https://codeburst.io/100-serverless-asynchronous-api-with-apig-sqs-and-lambda-2506a039b4d)
+4. 今日诗词 API 的 GitHub 项目：[https://github.com/xenv/gushici](https://github.com/xenv/gushici)
+5. 训练 tesseract-ocr 模型：[https://medium.com/@guiem/how-to-train-tesseract-4-ebe5881ff3b7](https://medium.com/@guiem/how-to-train-tesseract-4-ebe5881ff3b7)
+6. 创建 AWS Lambda Function 层：[https://medium.com/analytics-vidhya/build-tesseract-serverless-api-using-aws-lambda-and-docker-in-minutes-dd97a79b589b](https://medium.com/analytics-vidhya/build-tesseract-serverless-api-using-aws-lambda-and-docker-in-minutes-dd97a79b589b)
+7. 为 SQS 连接 API Gateway 接口：[https://medium.com/@pranaysankpal/aws-api-gateway-proxy-for-sqs-simple-queue-service-5b08fe18ce50](https://medium.com/@pranaysankpal/aws-api-gateway-proxy-for-sqs-simple-queue-service-5b08fe18ce50)
+8. 为 SQS 连接 API Gateway 接口：[https://codeburst.io/100-serverless-asynchronous-api-with-apig-sqs-and-lambda-2506a039b4d](https://codeburst.io/100-serverless-asynchronous-api-with-apig-sqs-and-lambda-2506a039b4d)
