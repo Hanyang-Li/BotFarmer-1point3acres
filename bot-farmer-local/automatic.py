@@ -272,7 +272,7 @@ def _get_daily_sentence():
         try:
             response = requests.get(api_table[api]['url']).text
             sentence = eval(api_table[api]['parse'].format('response'))
-            return sentence
+            return sentence[:49]  # 1point3acres doesn't accept more than 50 chars
         except:
             print("\033[1;31m[Warning]\033[0m: {} API failure!".format(api))
             api_table.pop(api)

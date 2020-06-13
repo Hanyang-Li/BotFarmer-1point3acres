@@ -152,7 +152,7 @@ def login(func):
 
 
 @login
-def check_in():
+def check_in(attempt=0):
     """
     Take daily check in operation, fill the form with random mood and different saying everyday.
     """
@@ -183,6 +183,14 @@ def check_in():
     elif re.search(RE_CHECKED_IN, response.text):
         log['check in']['status'] = 'succeed'
         log['check in']['content'] = {'mood': mood, 'saying': saying}
+    elif not response.text:
+        # Case that sometimes no response from 1point3acres server
+        log['check in']['attempt times'] = attempt + 1;
+        if attempt < 10:
+            check_in(attempt + 1)
+        else:
+            log['check in']['status'] = 'failed'
+            log['check in']['error'] = 'no response!'
     else:
         log['check in']['status'] = 'failed'
         log['check in']['error'] = 'unknown error!'
@@ -339,7 +347,7 @@ def _get_daily_sentence():
         try:
             response = requests.get(api_table[api]['url']).text
             sentence = eval(api_table[api]['parse'].format('response'))
-            return sentence
+            return sentence[:49]  # 1point3acres doesn't accept more than 50 chars
         except:
             log['check in'].setdefault('API warning', []).append(api + ' API failure!')
             api_table.pop(api)
