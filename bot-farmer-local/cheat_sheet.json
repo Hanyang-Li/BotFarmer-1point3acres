@@ -41,6 +41,9 @@
   "下面哪所纽约高校的主校区坐落于中央公园附近？": [
     "Columbia University"
   ],
+  "Miami University在哪个城市": [
+    "Oxford, Ohio"
+  ],
   "以下哪个说法正确？": [
     "一篇一作指的是有一篇第一作者的文章"
   ],
@@ -83,6 +86,9 @@
   ],
   "以下哪种不是Modes of dataflow?": [
     "tcp/ip"
+  ],
+  "以下哪一位名人不是英国人？": [
+    "Louis Pasteur(他发现了巴斯德高温消毒法)"
   ],
   "下面哪个城市没有SUNY（纽约州立大学）校区？": [
     "Fulton"
@@ -177,6 +183,11 @@
   "下面哪个说法错误？": [
     "中国驻纽约领事馆位于法拉盛中国城，周围全是好吃的！",
     "芝加哥是美国著名的雨城"
+  ],
+  "下面哪个州，没有state income tax?": [
+    "Florida",
+    "Alaska",
+    "New Hampshire"
   ],
   "下面哪个州，有state income tax on wages": [
     "North Dakota"
