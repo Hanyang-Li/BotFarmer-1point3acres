@@ -14,33 +14,35 @@ if 'windows' in platform.system().lower():
     import colorama
     colorama.init()
 
-URL_ICIBA_API = 'http://open.iciba.com/dsapi/'
+# URL_ICIBA_API = 'http://open.iciba.com/dsapi/'  # URL Expired
 URL_ONE_API = 'http://api.youngam.cn/api/one.php'
 URL_SHANBAY_API = 'https://apiv3.shanbay.com/weapps/dailyquote/quote/'
 URL_JINRISHICI_API = 'https://v1.jinrishici.com/rensheng.txt'
 URL_EMAIL = 'https://www.1point3acres.com/bbs/home.php?mod=spacecp&ac=profile&op=password'
 URL_LOGIN = 'https://www.1point3acres.com/bbs/member.php?mod=logging&action=login&loginsubmit=yes&infloat=yes&lssubmit=yes&inajax=1'
-URL_BBS = 'https://www.1point3acres.com/bbs/'
-URL_CHECK_IN = 'https://www.1point3acres.com/bbs/plugin.php?id=dsu_paulsign:sign&operation=qiandao&infloat=1&sign_as=1&inajax=1'
+URL_CHECK_IN_PAGE = 'https://www.1point3acres.com/bbs/dsu_paulsign-sign.html'
+URL_CHECK_IN = 'https://www.1point3acres.com/bbs/plugin.php?id=dsu_paulsign:sign&operation=qiandao&infloat=0&inajax=0'
 URL_GET_QUIZ = 'https://www.1point3acres.com/bbs/plugin.php?id=ahome_dayquestion:pop&infloat=yes&handlekey=pop&inajax=1&ajaxtarget=fwin_content_pop'
-URL_ANOTHER_VERIFY = 'https://www.1point3acres.com/bbs/misc.php?mod=seccode&action=update&idhash=SA00&inajax=1&ajaxtarget=seccode_SA00'
-URL_VERIFY_IMAGE = 'https://www.1point3acres.com/bbs/misc.php?mod=seccode&update={}&idhash=SA00'
-URL_VERIFY_CODE = 'https://www.1point3acres.com/bbs/misc.php?mod=seccode&action=check&inajax=1&&idhash=SA00&secverify='
+URL_ANOTHER_VERIFY = 'https://www.1point3acres.com/bbs/misc.php?mod=seccode&action=update&idhash={}&inajax=1&ajaxtarget=seccode_{}'
+URL_VERIFY_IMAGE = 'https://www.1point3acres.com/bbs/misc.php?mod=seccode&update={}&idhash={}'
+URL_VERIFY_CODE = 'https://www.1point3acres.com/bbs/misc.php?mod=seccode&action=check&inajax=1&&idhash={}&secverify='
 URL_TAKE_QUIZ = 'https://www.1point3acres.com/bbs/plugin.php?id=ahome_dayquestion:pop'
 
 RE_USERNAME = r'<strong class=\"vwmy\"><a href=\".*\.html\" target=\"_blank\" title=\"访问我的空间\">(.*)<\/a><\/strong>'
 RE_EMAIL = r'<input type=\"text\" name=\"emailnew\" id=\"emailnew\" value=\"(.*)\" disabled \/>'
 RE_LOGIN_FAILED = r'登录失败'
 RE_LOGIN_LOCKED = r'密码错误次数过多'
-RE_CHECK_IN_HASH = r'dsu_paulsign:sign&(.{8})'
+RE_CHECK_IN_HASH = r'<a href=\"member\.php\?mod=logging&amp;action=logout&amp;formhash=(.{8})\">退出<\/a>'
+RE_NOT_CHECK_IN = r'今天签到了吗？请选择您此刻的'
+RE_HAS_CHECK_IN = r'您今天已经签到过了或者签到时间还未开始'
 RE_CANNOT_CHECK_IN = r'请做微信验证（网站右上角）后参与每日答题。'
-RE_CHECKED_IN = r'恭喜你签到成功!'
+RE_CHECK_IN_SUCCEED = r'恭喜你签到成功!'
 RE_CANNOT_QUIZ = r'您的积分不足以支付答错惩罚|请做微信验证'
 RE_QUIZ_TAKEN = r'您今天已经参加过答题，明天再来吧！'
 RE_QUIZ_HASH = r'<input type=\"hidden\" name=\"formhash\" value=\"(.{8})\">'
 RE_QUIZ_QUESTION = r'<b>【题目】<\/b>&nbsp;(.*)<\/font>'
 RE_QUIZ_ANSWERS = r'name=\"answer\" value=\"(\d)\"\s*>&nbsp;&nbsp;(.*?)<\/div>'
-RE_VERIFY_NUM = r'src=\"misc\.php\?mod=seccode&update=(\d*)\&idhash=SA00\"'
+RE_VERIFY_NUM = r'src=\"misc\.php\?mod=seccode&update=(\d*)\&idhash=(S00|SA00)\"'
 RE_RIGHT_VERIFY = r'<root><\!\[CDATA\[succeed\]\]><\/root>'
 RE_EXPIRE_VERIFY = r'抱歉，验证码填写错误'
 RE_WRONG_ANSWER = r'抱歉，回答错误！扣除1大米'
@@ -111,13 +113,25 @@ def check_in():
     """
     Take daily check in operation, fill the form with random mood and different saying everyday.
     """
-    formhash = re.search(RE_CHECK_IN_HASH, session.get(URL_BBS, headers=HEADERS).text)
+    response = session.get(URL_CHECK_IN_PAGE, headers=HEADERS)
+    # Get formhash from check in page, without it you can't check in
+    formhash = re.search(RE_CHECK_IN_HASH, response.text)
     if not formhash:
-        print("Check In \033[1;34m[failed]\033[0m: you have already checked in today!")
+        print("Check In \033[1;34m[failed]\033[0m: cannot get formhash!")
         return
+    # Check whether user can check in or not
+    if re.search(RE_HAS_CHECK_IN, response.text):
+        # Case that user has checked in today or the user cannot check in now
+        print("Check In \033[1;34m[failed]\033[0m: user has checked in today or cannot check in now!")
+        return
+    elif not re.search(RE_NOT_CHECK_IN, response.text):
+        # Case that there's unknown reason user is not allowed to check in
+        print("Check In \033[1;34m[failed]\033[0m: unknown reason cannot check in!")
+        return
+    # Case that user is allowed to check in
     mood = _get_mood()
-    saying = _get_daily_sentence()
-    verify_code = _get_verify_code()
+    saying = _get_daily_sentence()[:49]  # 1point3acres doesn't accept more than 50 chars
+    verify_code = _get_verify_code('S00')
     print("Check In ", end='')
     # Generate form, 'qdmode' is check in mode, 1 means say anything you like
     body = {
@@ -126,13 +140,13 @@ def check_in():
         'qdmode': 1,
         'todaysay': saying,
         'fastreply': 0,
-        'sechash': 'SA00',
+        'sechash': 'S00',
         'seccodeverify': verify_code
     }
     response = session.post(URL_CHECK_IN, headers=HEADERS, data=body)
     if re.search(RE_CANNOT_CHECK_IN, response.text):
         print("\033[1;31m[failed]\033[0m: 1point3acres rejected your request!")
-    elif re.search(RE_CHECKED_IN, response.text):
+    elif re.search(RE_CHECK_IN_SUCCEED, response.text):
         saying = saying[:9] + '...' if len(saying) > 10 else saying
         print("\033[1;32m[succeed]\033[0m: mood='{}', saying='{}'".format(mood, saying))
     else:
@@ -199,7 +213,7 @@ def take_quiz():
 
     # Submit the form
     # Important variable: is_right
-    verify_code = _get_verify_code()
+    verify_code = _get_verify_code('SA00')
     body = {
         'formhash': formhash,
         'answer': correct,
@@ -250,10 +264,10 @@ def _get_daily_sentence():
     Pick an API to get daily sentence randomly
     """
     api_table = {
-        'iciba': {
-            'url': URL_ICIBA_API,
-            'parse': "json.loads({}).get('note')"
-        },
+        # 'iciba': {
+        #     'url': URL_ICIBA_API,
+        #     'parse': "json.loads({}).get('note')"
+        # },
         'one': {
             'url': URL_ONE_API,
             'parse': "json.loads({}).get('data')[0]['text']"
@@ -272,7 +286,7 @@ def _get_daily_sentence():
         try:
             response = requests.get(api_table[api]['url']).text
             sentence = eval(api_table[api]['parse'].format('response'))
-            return sentence[:49]  # 1point3acres doesn't accept more than 50 chars
+            return sentence
         except:
             print("\033[1;31m[Warning]\033[0m: {} API failure!".format(api))
             api_table.pop(api)
@@ -285,24 +299,25 @@ def _get_mood():
     moods = ['kx', 'ng', 'ym', 'wl', 'nu', 'ch', 'fd', 'yl', 'shuai']
     return moods[random.randint(0, len(moods)-1)]
 
-def _get_verify_code():
+def _get_verify_code(idhash):
     """
     Get a new verify image and recognize it to string
+    :params idhash: check in set to "S00"; take quiz set to "SA00"
     """
     # Keep recognizing verify code if it is wrong
     is_wrong = True
     while is_wrong:
         print("Recognize Verify \033[1;34m[pending]: \033[0m", end='', flush=True)
         # Get the latest verify code image
-        response = session.get(URL_ANOTHER_VERIFY, headers=HEADERS)
+        response = session.get(URL_ANOTHER_VERIFY.format(idhash, idhash), headers=HEADERS)
         verify_num = re.search(RE_VERIFY_NUM, response.text).group(1)
-        verify_url = URL_VERIFY_IMAGE.format(verify_num)
+        verify_url = URL_VERIFY_IMAGE.format(verify_num, idhash)
         verify_image = Image.open(BytesIO(session.get(verify_url, headers=HEADERS).content))
         # Recognize verify code from the image
         verify_code = _recognize_verify(verify_image)
         print(verify_code)
         # Check whether the code is right or wrong
-        verify_status = session.get(URL_VERIFY_CODE + verify_code, headers=HEADERS).text
+        verify_status = session.get(URL_VERIFY_CODE.format(idhash) + verify_code, headers=HEADERS).text
         sys.stdout.write('\033[A\033[K')
         if (re.search(RE_RIGHT_VERIFY, verify_status)):
             is_wrong = False
