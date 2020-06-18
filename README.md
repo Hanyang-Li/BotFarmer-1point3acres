@@ -4,7 +4,9 @@ BotFarmer 是一亩三分地论坛每日签到、答题赚取积分的自动脚�
 
 **本项目仅用于学习交流，如有侵犯论坛利益，请联系我删除仓库！**
 
-*题库日常更新，请移步 [cheat sheet](https://github.com/Hanyang-Li/BotFarmer-1point3acres/blob/master/bot-farmer-local/cheat_sheet.json)。*
+*题库日常更新，请查看 [cheat sheet](https://github.com/Hanyang-Li/BotFarmer-1point3acres/blob/master/bot-farmer-local/cheat_sheet.json)。*
+
+*一亩三分地验证码数据集，请查看 [dataset](https://github.com/Hanyang-Li/BotFarmer-1point3acres/tree/master/train-tesseract/dataset)。*
 
 ## 环境要求 <!-- omit in toc -->
 
