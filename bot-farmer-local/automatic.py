@@ -14,7 +14,7 @@ if 'windows' in platform.system().lower():
     import colorama
     colorama.init()
 
-# URL_ICIBA_API = 'http://open.iciba.com/dsapi/'  # URL Expired
+URL_ICIBA_API = 'http://open.iciba.com/dsapi/'
 URL_ONE_API = 'http://api.youngam.cn/api/one.php'
 URL_SHANBAY_API = 'https://apiv3.shanbay.com/weapps/dailyquote/quote/'
 URL_JINRISHICI_API = 'https://v1.jinrishici.com/rensheng.txt'
@@ -264,10 +264,10 @@ def _get_daily_sentence():
     Pick an API to get daily sentence randomly
     """
     api_table = {
-        # 'iciba': {
-        #     'url': URL_ICIBA_API,
-        #     'parse': "json.loads({}).get('note')"
-        # },
+        'iciba': {
+            'url': URL_ICIBA_API,
+            'parse': "json.loads({}).get('note')"
+        },
         'one': {
             'url': URL_ONE_API,
             'parse': "json.loads({}).get('data')[0]['text']"

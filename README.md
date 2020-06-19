@@ -147,7 +147,7 @@ $ python automatic.py check_in
 
 每日一句使用了多个API随机获取一句鸡（胡）汤（诌），API包括：
 
-* ~~金山词霸每日一句：[http://open.iciba.com/dsapi/](http://open.iciba.com/dsapi/)~~
+* 金山词霸每日一句：[http://open.iciba.com/dsapi/](http://open.iciba.com/dsapi/)
 * 「ONE · 一个」：[http://api.youngam.cn/api/one.php](http://api.youngam.cn/api/one.php)
 * 扇贝单词每日一句：[https://apiv3.shanbay.com/weapps/dailyquote/quote/](https://apiv3.shanbay.com/weapps/dailyquote/quote/)
 * 今日诗词 GitHub 项目：[https://v1.jinrishici.com/rensheng.txt](https://v1.jinrishici.com/rensheng.txt)
