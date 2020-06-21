@@ -138,7 +138,7 @@ def check_in():
         'formhash': formhash.group(1),
         'qdxq': mood,
         'qdmode': 1,
-        'todaysay': saying,
+        'todaysay': saying.encode('gbk'),
         'fastreply': 0,
         'sechash': 'S00',
         'seccodeverify': verify_code
