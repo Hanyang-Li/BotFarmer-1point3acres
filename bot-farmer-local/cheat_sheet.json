@@ -1,4 +1,7 @@
 {
+  "下面哪个州在美国西海岸": [
+    "Washington"
+  ],
   "公司之间级别对应，如下哪个是错误的？": [
     "Facebook L6 = Facebook E6"
   ],
@@ -190,13 +193,17 @@
     "New Hampshire"
   ],
   "下面哪个州，有state income tax on wages": [
-    "North Dakota"
+    "North Dakota",
+    "Mississippi"
   ],
   "一亩三分地是谁创立的？": [
     "Warald"
   ],
   "下面哪家公司的总部不在西雅图?": [
     "波音"
+  ],
+  "下面哪个machine learning的模型不是supervised learning？": [
+    "Clustering"
   ],
   "which state is University of Miami located?": [
     "Florida"
