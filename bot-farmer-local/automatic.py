@@ -312,7 +312,18 @@ def _get_verify_code(idhash):
         response = session.get(URL_ANOTHER_VERIFY.format(idhash, idhash), headers=HEADERS)
         verify_num = re.search(RE_VERIFY_NUM, response.text).group(1)
         verify_url = URL_VERIFY_IMAGE.format(verify_num, idhash)
-        verify_image = Image.open(BytesIO(session.get(verify_url, headers=HEADERS).content))
+        verify_gif = Image.open(BytesIO(session.get(verify_url, headers=HEADERS).content))
+        # Find the frame of gif with the longest duration, save it to new image
+        durations = []
+        try:
+            while True:
+                durations.append(verify_gif.info['duration'])
+                verify_gif.seek(verify_gif.tell() + 1)
+        except EOFError:
+            pass
+        verify_gif.seek(durations.index(max(durations)))
+        verify_image = Image.new('RGBA', verify_gif.size)
+        verify_image.paste(verify_gif)
         # Recognize verify code from the image
         verify_code = _recognize_verify(verify_image)
         print(verify_code)
