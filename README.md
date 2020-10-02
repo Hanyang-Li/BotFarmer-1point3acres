@@ -20,11 +20,15 @@ BotFarmer 是一亩三分地论坛每日签到、答题赚取积分的自动脚�
 
 分别介绍本地命令行版本环境的安装、脚本运行，AWS 云端部署版的搭建，以及tesseract模型的训练。
 
-- [本地命令行交互版](#本地命令行交互版)
+- [本地命令行交互版（含自行输入验证码版）](#本地命令行交互版)
   - [安装 tesseract](#安装-tesseract)
   - [安装 Python 依赖库](#安装-python-依赖库)
   - [修改配置文件](#修改配置文件)
   - [运行脚本](#运行脚本)
+- [本地命令行交互版（自行输入验证码版）](#本地命令行交互版（自行输入验证码版）)
+  - [安装 Python 依赖库](#安装-python-依赖库（自行输入验证码版）)
+  - [修改配置文件](#修改配置文件（自行输入验证码版）)
+  - [运行脚本](#运行脚本（自行输入验证码版）)
 - [AWS 云端部署版](#aws-云端部署版)
   - [DynamoDB](#dynamodb)
   - [SQS](#sqs)
@@ -165,6 +169,94 @@ $ python automatic.py take_quiz
 ```console
 $ exit
 ```
+-----
+
+### 本地命令行交互版（自行输入验证码版）
+
+#### 安装 Python 依赖库（自行输入验证码版）
+
+本项目提供了 `pipenv` 的环境配置文件，打开命令行工具，*进入项目目录 `bot-farmer-local/`*，运行以下命令安装 Python 虚拟环境：
+
+```console
+$ pipenv install
+```
+
+如果不想创建 Python 虚拟环境，也可以运行以下命令直接安装 Python 依赖库：
+
+```console
+$ pip3 install requests Pillow pytesseract
+```
+
+Windows 平台用户要多安装一个 Python 依赖库：
+
+```console
+$ pip3 install colorama
+```
+
+#### 修改配置文件（自行输入验证码版）
+
+首先我们通过抓包获取一亩三分地前端加密后的登陆密码。用浏览器访问一亩三分地论坛主页 [https://www.1point3acres.com/bbs/](https://www.1point3acres.com/bbs/ "一亩三分地")，退出登录后打开浏览器的网页检查器，选择 `Network（网络）`选项卡，勾选 `Preserve log（保留日志）`选项，保持`录制`为打开状态，如图：
+
+![网页检查器设置截图](./images/readme/local-01.png)
+
+输入用户名和密码，点击登录，这时会录制到对网页的请求，在网页检查器中选择查看 `Doc （文稿）`，找到名称为 `member.php` 的 POST 方法记录，查看它的 `Header （标头）`，滚动到最下边就可以在请求数据中找到网页前端加密后的密码，如图：
+
+![抓包查看加密密码截图](./images/readme/local-02.png)
+
+在项目目录 `bot-farmer-local/` 中找到 `user.json` 文件，修改文件内容：
+
+```json
+{
+    "uid": "填写请求数据中username后的值",
+    "passwd": "填写请求数据中password后的值"
+}
+```
+
+#### 运行脚本（自行输入验证码版）
+
+打开命令行工具，*进入项目目录 `bot-farmer-local/`*。如果之前安装了 Python 虚拟环境，执行以下命令将其打开：
+
+```console
+$ pipenv shell
+```
+
+执行以下命令运行脚本进行论坛每日签到、答题：
+
+```console
+$ python automatic.py
+```
+
+也可以用传递参数的形式单独进行签到、答题操作。
+
+用如下命令进行签到操作：
+
+```console
+$ python automatic.py check_in
+```
+
+脚本会随机选择一个心情，“今天最想说”中填写每日一句，并自动弹出验证码，要求用户输入正确的验证。
+
+每日一句使用了多个API随机获取一句鸡（胡）汤（诌），API包括：
+
+* 金山词霸每日一句：[http://open.iciba.com/dsapi/](http://open.iciba.com/dsapi/)
+* 「ONE · 一个」：[http://api.youngam.cn/api/one.php](http://api.youngam.cn/api/one.php)
+* 扇贝单词每日一句：[https://apiv3.shanbay.com/weapps/dailyquote/quote/](https://apiv3.shanbay.com/weapps/dailyquote/quote/)
+* 今日诗词 GitHub 项目：[https://v1.jinrishici.com/rensheng.txt](https://v1.jinrishici.com/rensheng.txt)
+
+用如下命令进行答题操作：
+
+```console
+$ python automatic.py take_quiz
+```
+
+脚本会获取用户今天的题目和对应的4个选项，并在项目目录 `bot-farmer-local/` 里的 `cheat_sheet.json` 中寻找该题目和正确答案。如果该文件能够提供唯一的答案，脚本会自动作出选择；如果找不到该题目，或者出现未知错误不能提供唯一答案，则会以命令行交互的方式向用户询问答案。之后脚本会自动弹出验证码并要求用户输入正确的验证码。在自动提交题目后，脚本会根据一亩三分地论坛的反馈信息判断作答的正确性，并据此更新 `cheat_sheet.json` 文件，将错误的答案删除，保留或添加正确的答案。
+
+如果使用 Python 虚拟环境运行的脚本，关闭命令行工具窗口或执行以下命令退出虚拟环境：
+
+```console
+$ exit
+```
+
 -----
 
 ### AWS 云端部署版
