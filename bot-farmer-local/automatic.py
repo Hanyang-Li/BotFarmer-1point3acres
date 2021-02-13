@@ -418,12 +418,14 @@ def _validate_img(width, height, x, y, pix):
         return 3
 
 def _refine(char):
+    char = char.strip()
+    if len(char) == 0:
+        return ' '
     if len(char) > 1:
-        return char[-1]
+        char = char[-1]
     if char == '¥':
         return 'Y'
-    else:
-        return char
+    return char
 
 
 if __name__ == "__main__":
