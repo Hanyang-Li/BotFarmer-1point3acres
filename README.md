@@ -175,7 +175,7 @@ $ exit
 
 #### 安装 Python 依赖库（自行输入验证码版）
 
-本项目提供了 `pipenv` 的环境配置文件，打开命令行工具，*进入项目目录 `bot-farmer-local/`*，运行以下命令安装 Python 虚拟环境：
+本项目提供了 `pipenv` 的环境配置文件，打开命令行工具，*进入项目目录 `bot-farmer-local-self/`*，运行以下命令安装 Python 虚拟环境：
 
 ```console
 $ pipenv install
@@ -214,7 +214,7 @@ $ pip3 install colorama
 
 #### 运行脚本（自行输入验证码版）
 
-打开命令行工具，*进入项目目录 `bot-farmer-local/`*。如果之前安装了 Python 虚拟环境，执行以下命令将其打开：
+打开命令行工具，*进入项目目录 `bot-farmer-local-self/`*。如果之前安装了 Python 虚拟环境，执行以下命令将其打开：
 
 ```console
 $ pipenv shell
